@@ -7,6 +7,9 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import com.example.roamly.nav.nestednavigation.NestedNavDisplay
+import com.roamly.booking.BookingScreen
+import com.roamly.booking.BookingSuccessScreen
+import com.roamly.hoteldetails.HotelDetailsScreen
 
 @Composable
 fun RootNavDisplay() {

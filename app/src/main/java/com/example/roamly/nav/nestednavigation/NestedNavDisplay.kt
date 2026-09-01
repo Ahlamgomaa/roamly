@@ -11,6 +11,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.roamly.nav.rootnavigation.AppRoute
 import com.example.roamly.nav.rootnavigation.pop
 import com.example.roamly.nav.rootnavigation.setRoot
+import com.roamly.hotels.HotelsScreen
+import com.roamly.favorites.FavoritesScreen
 
 @Composable
 fun NestedNavDisplay(

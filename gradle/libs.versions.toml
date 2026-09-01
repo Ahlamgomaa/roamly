@@ -17,9 +17,15 @@ material = "1.14.0"
 room = "2.8.4"
 hilt = "2.60.1"
 ksp = "2.3.10"
+moshi = "1.15.2"
+javaxInject = "1"
 
 
 [libraries]
+javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
+# Moshi
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshi" }
 #nav3
 androidx-navigation3 = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }

@@ -1,14 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.roamly.domain"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -23,9 +21,11 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
+    implementation(libs.javax.inject)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

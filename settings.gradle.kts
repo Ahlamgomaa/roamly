@@ -24,4 +24,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "Roamly"
 include(":app")
- 
+include(":core:data")
+include(":core:domain")
+include(":core:designsystem")
+include(":core:common")
+include(":features")

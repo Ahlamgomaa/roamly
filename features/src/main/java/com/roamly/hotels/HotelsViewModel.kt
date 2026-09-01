@@ -37,59 +37,59 @@ class HotelsViewModel @Inject constructor(
     private val _isCached = MutableStateFlow(false)
     private val _errorMessage = MutableStateFlow<String?>(null)
 
-    val uiState: StateFlow<HotelsUiState> = combine(
-        getHotelsUseCase(),
+    private val _filterState = combine(
         _searchQuery.debounce(300),
         _selectedCity,
         _minRating,
         _minPrice,
-        _maxPrice,
+        _maxPrice
+    ) { query, city, rating, minP, maxP ->
+        FilterState(query, city, rating, minP, maxP)
+    }
+
+    private val _internalState = combine(
         _currentPage,
         _isLoadingMore,
         _isRefreshing,
         _isCached,
         _errorMessage
-    ) { params ->
-        val hotels = params[0] as List<Hotel>
-        val query = params[1] as String
-        val city = params[2] as? String
-        val rating = params[3] as? Double
-        val minP = params[4] as? Double
-        val maxP = params[5] as? Double
-        val page = params[6] as Int
-        val loadingMore = params[7] as Boolean
-        val refreshing = params[8] as Boolean
-        val cached = params[9] as Boolean
-        val error = params[10] as? String
+    ) { page, loadingMore, refreshing, cached, error ->
+        InternalState(page, loadingMore, refreshing, cached, error)
+    }
 
+    val uiState: StateFlow<HotelsUiState> = combine(
+        getHotelsUseCase(),
+        _filterState,
+        _internalState
+    ) { hotels, filters, internal ->
         val filteredHotels = hotels.filter { hotel ->
-            val matchesQuery = query.isBlank() || hotel.name.contains(query, ignoreCase = true)
-            val matchesCity = city == null || hotel.city.equals(city, ignoreCase = true)
-            val matchesRating = rating == null || hotel.rating >= rating
-            val matchesMinPrice = minP == null || hotel.pricePerNight >= minP
-            val matchesMaxPrice = maxP == null || hotel.pricePerNight <= maxP
+            val matchesQuery = filters.query.isBlank() || hotel.name.contains(filters.query, ignoreCase = true)
+            val matchesCity = filters.city == null || hotel.city.equals(filters.city, ignoreCase = true)
+            val matchesRating = filters.rating == null || hotel.rating >= filters.rating
+            val matchesMinPrice = filters.minPrice == null || hotel.pricePerNight >= filters.minPrice
+            val matchesMaxPrice = filters.maxPrice == null || hotel.pricePerNight <= filters.maxPrice
 
             matchesQuery && matchesCity && matchesRating && matchesMinPrice && matchesMaxPrice
         }
 
         val pageSize = 10
         val totalFilteredCount = filteredHotels.size
-        val hasMore = page * pageSize < totalFilteredCount
-        val displayed = filteredHotels.take(page * pageSize)
+        val hasMore = internal.page * pageSize < totalFilteredCount
+        val displayed = filteredHotels.take(internal.page * pageSize)
 
         HotelsUiState(
             hotels = hotels,
-            searchQuery = query,
-            selectedCity = city,
-            minRating = rating,
-            minPrice = minP,
-            maxPrice = maxP,
-            isLoading = hotels.isEmpty() && error == null && !refreshing,
-            isRefreshing = refreshing,
-            isLoadingMore = loadingMore,
-            isCached = cached,
+            searchQuery = filters.query,
+            selectedCity = filters.city,
+            minRating = filters.rating,
+            minPrice = filters.minPrice,
+            maxPrice = filters.maxPrice,
+            isLoading = hotels.isEmpty() && internal.error == null && !internal.isRefreshing,
+            isRefreshing = internal.isRefreshing,
+            isLoadingMore = internal.isLoadingMore,
+            isCached = internal.isCached,
             hasMore = hasMore,
-            errorMessage = error,
+            errorMessage = internal.error,
             availableCities = hotels.map { it.city }.distinct().sorted(),
             displayedHotels = displayed
         )
@@ -158,6 +158,22 @@ class HotelsViewModel @Inject constructor(
             _isRefreshing.value = false
         }
     }
+
+    private data class FilterState(
+        val query: String,
+        val city: String?,
+        val rating: Double?,
+        val minPrice: Double?,
+        val maxPrice: Double?
+    )
+
+    private data class InternalState(
+        val page: Int,
+        val isLoadingMore: Boolean,
+        val isRefreshing: Boolean,
+        val isCached: Boolean,
+        val error: String?
+    )
 
     companion object {
         private const val KEY_SEARCH_QUERY = "search_query"

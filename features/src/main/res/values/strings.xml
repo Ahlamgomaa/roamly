@@ -35,4 +35,22 @@
     <string name="favorites">Favorites</string>
     <string name="no_favorites_yet">No favorites yet</string>
     <string name="favorites_empty_message">Start exploring and save your favorite hotels here.</string>
+    <string name="booking">Booking</string>
+    <string name="check_in">Check-in</string>
+    <string name="check_out">Check-out</string>
+    <string name="rooms">Rooms</string>
+    <string name="price_summary">Price Summary</string>
+    <string name="base_price">Base Price</string>
+    <string name="vat">VAT (15%)</string>
+    <string name="total_price">Total Price</string>
+    <string name="confirm_booking">Confirm Booking</string>
+    <string name="booking_confirmed">Booking Confirmed</string>
+    <string name="booking_reference">Booking Reference</string>
+    <string name="back_to_hotels">Back to Hotels</string>
+    <string name="hotel">Hotel</string>
+    <string name="total_paid">Total Paid</string>
+    <string name="invalid_dates">Invalid Dates</string>
+    <string name="checkout_before_checkin">Check-out must be after check-in</string>
+    <string name="checkin_in_past">Check-in cannot be in the past</string>
+    <string name="checkout_is_checkin">Check-out cannot be same as check-in</string>
 </resources>

@@ -7,7 +7,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import com.example.roamly.nav.nestednavigation.NestedNavDisplay
-import com.roamly.booking.BookingScreen
+import com.roamly.booking.BookingRoot
 import com.roamly.booking.BookingSuccessScreen
 import com.roamly.hoteldetails.HotelDetailsRoot
 
@@ -75,18 +75,23 @@ fun RootNavDisplay() {
 
             entry<AppRoute.Booking> { route ->
 
-                BookingScreen(
+                BookingRoot(
                     hotelId = route.hotelId,
 
                     onBackClick = {
                         rootBackStack.popIfCurrent(route)
                     },
 
-                    onBookingConfirmed = { bookingReference ->
+                    onBookingConfirmed = { reference, hotelName, checkIn, checkOut, rooms, total ->
 
                         rootBackStack.push(
                             AppRoute.BookingSuccess(
-                                bookingReference = bookingReference
+                                bookingReference = reference,
+                                hotelName = hotelName,
+                                checkIn = checkIn,
+                                checkOut = checkOut,
+                                rooms = rooms,
+                                totalPrice = total
                             )
                         )
                     }
@@ -99,6 +104,11 @@ fun RootNavDisplay() {
 
                 BookingSuccessScreen(
                     bookingReference = route.bookingReference,
+                    hotelName = route.hotelName,
+                    checkIn = route.checkIn,
+                    checkOut = route.checkOut,
+                    rooms = route.rooms,
+                    totalPrice = route.totalPrice,
 
                     onDoneClick = {
 

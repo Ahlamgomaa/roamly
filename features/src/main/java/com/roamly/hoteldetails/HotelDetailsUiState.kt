@@ -1,3 +1,10 @@
 package com.roamly.hoteldetails
 
-class HotelDetailsUiState
+import com.roamly.hotel.model.Hotel
+
+data class HotelDetailsUiState(
+    val hotel: Hotel? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val isNotFound: Boolean = false
+)

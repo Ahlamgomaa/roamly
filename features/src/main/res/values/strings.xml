@@ -25,4 +25,11 @@
     <string name="rating_label">Rating: %1$.1f</string>
     <string name="search_content_description">Search hotels</string>
     <string name="filter_content_description">Open filters</string>
+    <string name="hotel_details">Hotel Details</string>
+    <string name="amenities">Amenities</string>
+    <string name="location">Location</string>
+    <string name="book_now">Book Now</string>
+    <string name="hotel_not_found">Hotel not found</string>
+    <string name="back">Back</string>
+    <string name="about_this_hotel">About this hotel</string>
 </resources>

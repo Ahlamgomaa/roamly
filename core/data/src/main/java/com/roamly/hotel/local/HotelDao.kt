@@ -11,6 +11,9 @@ interface HotelDao {
     @Query("SELECT * FROM hotels")
     fun getHotels(): Flow<List<HotelEntity>>
 
+    @Query("SELECT * FROM hotels WHERE id = :id")
+    fun getHotelById(id: Long): Flow<HotelEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHotels(hotels: List<HotelEntity>)
 

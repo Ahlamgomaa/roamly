@@ -1,6 +1,7 @@
 package com.example.roamly.nav.nestednavigation
 
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -57,7 +58,7 @@ fun NestedNavDisplay(
         NavDisplay(
             backStack = nestedBackStack,
 
-            modifier = Modifier,
+            modifier = Modifier.padding(innerPadding),
 
             onBack = {
                 if (!nestedBackStack.pop()) {

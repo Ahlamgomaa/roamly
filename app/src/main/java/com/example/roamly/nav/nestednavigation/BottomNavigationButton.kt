@@ -29,7 +29,7 @@ fun RowScope.BottomNavigationButton(
         modifier = modifier
             .weight(1f)
             .clickable(onClick = onClick)
-            .padding(8.dp)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Icon(
             imageVector = icon,

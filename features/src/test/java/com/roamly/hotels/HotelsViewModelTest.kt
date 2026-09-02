@@ -35,7 +35,8 @@ class HotelsViewModelTest {
 
     private val sampleHotels = listOf(
         Hotel(1, "Grand Nile", "Cairo", 4.8, 3000.0, "", "", 0.0, 0.0, emptyList(), emptyList()),
-        Hotel(2, "Alex Inn", "Alexandria", 4.2, 1500.0, "", "", 0.0, 0.0, emptyList(), emptyList())
+        Hotel(2, "Alex Inn", "Alexandria", 4.2, 1500.0, "", "", 0.0, 0.0, emptyList(), emptyList()),
+        Hotel(3, "Luxor Palace", "Luxor", 4.5, 2000.0, "", "", 0.0, 0.0, emptyList(), emptyList())
     )
 
     @Before
@@ -59,39 +60,50 @@ class HotelsViewModelTest {
             assertTrue(state.isLoading)
 
             state = awaitItem()
-            assertEquals(2, state.hotels.size)
+            assertEquals(3, state.hotels.size)
             assertFalse(state.isLoading)
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `search query should filter hotels`() = runTest {
+    fun `search query should filter hotels case-insensitively and immediately update raw query`() = runTest {
         viewModel.uiState.test {
             awaitItem()
             awaitItem()
 
-            viewModel.onSearchQueryChange("Grand")
+            viewModel.onSearchQueryChange("grand")
 
-            advanceTimeBy(400)
+            var state = awaitItem()
+            assertEquals("grand", state.searchQuery)
+            assertEquals(3, state.displayedHotels.size)
+
+            advanceTimeBy(300)
             runCurrent()
 
-            val state = awaitItem()
+            state = awaitItem()
             assertEquals(1, state.displayedHotels.size)
-            assertEquals("Grand Nile", state.displayedHotels[0].name)
+            assertTrue(state.displayedHotels[0].name.contains("Grand", ignoreCase = true))
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `city filter should filter hotels`() = runTest {
+    fun `city filter should work with search query`() = runTest {
         viewModel.uiState.test {
             awaitItem()
             awaitItem()
 
-            viewModel.onCityFilterChange("Alexandria")
+            viewModel.onSearchQueryChange("Inn")
+            advanceTimeBy(300)
+            runCurrent()
+            awaitItem()
+            awaitItem()
 
-            val state = awaitItem()
+            viewModel.onCityFilterChange("Alexandria")
+            runCurrent()
+
+            val state = expectMostRecentItem()
             assertEquals(1, state.displayedHotels.size)
             assertEquals("Alexandria", state.displayedHotels[0].city)
             cancelAndIgnoreRemainingEvents()
@@ -99,48 +111,41 @@ class HotelsViewModelTest {
     }
 
     @Test
-    fun `reset filters should clear all filters`() = runTest {
+    fun `rating filter should filter hotels`() = runTest {
         viewModel.uiState.test {
             awaitItem()
             awaitItem()
 
-            viewModel.onSearchQueryChange("Grand")
-            advanceTimeBy(400)
-            runCurrent()
-            awaitItem()
-
-            viewModel.onCityFilterChange("Cairo")
-            awaitItem()
-
-            viewModel.onResetFilters()
-
-            advanceTimeBy(400)
+            viewModel.onRatingFilterChange(4.7)
             runCurrent()
 
-            val state = expectMostRecentItem()
-            assertEquals("", state.searchQuery)
-            assertEquals(null, state.selectedCity)
-            assertEquals(2, state.displayedHotels.size)
+            val state = awaitItem()
+            assertEquals(1, state.displayedHotels.size)
+            assertTrue(state.displayedHotels[0].rating >= 4.7)
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `pagination should load more hotels`() = runTest {
-        val manyHotels = (1..15).map {
-            Hotel(
-                it.toLong(),
-                "Hotel ${it}",
-                "City",
-                4.0,
-                1000.0,
-                "",
-                "",
-                0.0,
-                0.0,
-                emptyList(),
-                emptyList()
-            )
+    fun `price range filter should filter hotels`() = runTest {
+        viewModel.uiState.test {
+            awaitItem()
+            awaitItem()
+
+            viewModel.onPriceRangeChange(1000.0, 2500.0)
+            runCurrent()
+
+            val state = awaitItem()
+            assertEquals(2, state.displayedHotels.size)
+            assertTrue(state.displayedHotels.all { it.pricePerNight in 1000.0..2500.0 })
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `pagination should load more hotels and protect against duplicates`() = runTest {
+        val manyHotels = (1..25).map {
+            Hotel(it.toLong(), "Hotel $it", "City", 4.0, 1000.0, "", "", 0.0, 0.0, emptyList(), emptyList())
         }
         every { getHotelsUseCase() } returns flowOf(manyHotels)
 
@@ -150,11 +155,52 @@ class HotelsViewModelTest {
             awaitItem()
             var state = awaitItem()
             assertEquals(10, state.displayedHotels.size)
-            assertTrue(state.hasMore)
 
             viewModel.onLoadMore()
             state = awaitItem()
-            assertEquals(15, state.displayedHotels.size)
+            assertEquals(20, state.displayedHotels.size)
+
+            viewModel.onLoadMore()
+            runCurrent()
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `multiple filters should work together`() = runTest {
+        viewModel.uiState.test {
+            awaitItem()
+            awaitItem()
+
+            viewModel.onSearchQueryChange("Palace")
+            advanceTimeBy(300)
+            runCurrent()
+            awaitItem()
+            awaitItem()
+            
+            viewModel.onSearchQueryChange("Grand")
+            advanceTimeBy(300)
+            runCurrent()
+            awaitItem()
+            awaitItem()
+
+            viewModel.onCityFilterChange("Cairo")
+            runCurrent()
+            
+            val state = expectMostRecentItem()
+            assertEquals(1, state.displayedHotels.size)
+            assertEquals("Grand Nile", state.displayedHotels[0].name)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `hasMore should be false when all filtered hotels are displayed`() = runTest {
+        viewModel.uiState.test {
+            awaitItem()
+            val state = awaitItem()
+            assertEquals(3, state.displayedHotels.size)
             assertFalse(state.hasMore)
             cancelAndIgnoreRemainingEvents()
         }

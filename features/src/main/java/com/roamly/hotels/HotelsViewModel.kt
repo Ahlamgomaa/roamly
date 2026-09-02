@@ -3,6 +3,7 @@ package com.roamly.hotels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.roamly.hotel.model.Hotel
 import com.roamly.hotel.usecase.GetHotelsUseCase
 import com.roamly.hotel.usecase.RefreshHotelsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +37,10 @@ class HotelsViewModel @Inject constructor(
     private val _isCached = MutableStateFlow(false)
     private val _errorMessage = MutableStateFlow<String?>(null)
 
+    private val _debouncedQuery = _searchQuery.debounce(300)
+
     private val _filterState = combine(
-        _searchQuery.debounce(300),
+        _debouncedQuery,
         _selectedCity,
         _minRating,
         _minPrice,
@@ -58,9 +61,10 @@ class HotelsViewModel @Inject constructor(
 
     val uiState: StateFlow<HotelsUiState> = combine(
         getHotelsUseCase(),
+        _searchQuery,
         _filterState,
         _internalState
-    ) { hotels, filters, internal ->
+    ) { hotels, rawQuery, filters, internal ->
         val filteredHotels = hotels.filter { hotel ->
             val matchesQuery = filters.query.isBlank() || hotel.name.contains(filters.query, ignoreCase = true)
             val matchesCity = filters.city == null || hotel.city.equals(filters.city, ignoreCase = true)
@@ -78,7 +82,7 @@ class HotelsViewModel @Inject constructor(
 
         HotelsUiState(
             hotels = hotels,
-            searchQuery = filters.query,
+            searchQuery = rawQuery,
             selectedCity = filters.city,
             minRating = filters.rating,
             minPrice = filters.minPrice,
@@ -132,12 +136,15 @@ class HotelsViewModel @Inject constructor(
         _currentPage.value = 1
     }
 
+    private var lastLoadedPage = 1
+
     fun onLoadMore() {
-        val state = uiState.value
-        if (!state.isLoadingMore && state.hasMore) {
+        val currentState = uiState.value
+        if (!currentState.isLoadingMore && currentState.hasMore && _currentPage.value == lastLoadedPage) {
             viewModelScope.launch {
                 _isLoadingMore.value = true
                 _currentPage.value += 1
+                lastLoadedPage = _currentPage.value
                 _isLoadingMore.value = false
             }
         }

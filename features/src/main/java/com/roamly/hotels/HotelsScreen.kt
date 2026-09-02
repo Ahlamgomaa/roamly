@@ -37,7 +37,6 @@ import com.roamly.hotels.components.HotelErrorState
 import com.roamly.hotels.components.HotelFilterSheet
 import com.roamly.hotels.components.HotelsHeader
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 
 @Composable
 fun HotelsRoot(
@@ -74,12 +73,16 @@ fun HotelsScreen(
 ) {
     val listState = rememberLazyListState()
     var showFilterSheet by remember { mutableStateOf(false) }
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .filter { it != null }
+    LaunchedEffect(listState, state.displayedHotels.size) {
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val totalItemsNumber = layoutInfo.totalItemsCount
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisibleItemIndex to totalItemsNumber
+        }
             .distinctUntilChanged()
-            .collect { index ->
-                if (index == state.displayedHotels.size - 1) {
+            .collect { (lastIndex, total) ->
+                if (total > 0 && lastIndex >= total - 3) {
                     onLoadMore()
                 }
             }

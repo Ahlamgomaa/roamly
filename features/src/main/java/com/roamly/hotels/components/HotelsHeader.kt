@@ -27,7 +27,7 @@ fun HotelsHeader(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 22.dp, bottom = 16.dp)
     ) {
         Text(
             text = "Roamly",

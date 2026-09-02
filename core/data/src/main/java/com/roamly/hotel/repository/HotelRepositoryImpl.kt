@@ -20,6 +20,10 @@ class HotelRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getHotelById(id: Long): Flow<Hotel?> {
+        return dao.getHotelById(id).map { it?.toDomain() }
+    }
+
     override suspend fun refreshHotels(): Result<Unit> {
         return try {
             val dtos = dataSource.getHotels()

@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import com.example.roamly.nav.nestednavigation.NestedNavDisplay
 import com.roamly.booking.BookingScreen
 import com.roamly.booking.BookingSuccessScreen
-import com.roamly.hoteldetails.HotelDetailsScreen
+import com.roamly.hoteldetails.HotelDetailsRoot
 
 @Composable
 fun RootNavDisplay() {
@@ -53,7 +53,7 @@ fun RootNavDisplay() {
 
             entry<AppRoute.HotelDetails> { route ->
 
-                HotelDetailsScreen(
+                HotelDetailsRoot(
                     hotelId = route.hotelId,
 
                     onBackClick = {

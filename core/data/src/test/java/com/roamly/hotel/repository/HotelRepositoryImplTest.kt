@@ -75,4 +75,22 @@ class HotelRepositoryImplTest {
         assertTrue(result.isFailure)
         assertEquals("Network error", result.exceptionOrNull()?.message)
     }
+
+    @Test
+    fun `Cache Fallback - getHotels should continue to emit cached data even if refresh fails`() = runTest {
+        val cachedEntities = listOf(
+            HotelEntity(1, "Cached Hotel", "Cairo", 4.5, 1000.0, "", "", 0.0, 0.0, emptyList(), emptyList())
+        )
+        every { dao.getHotels() } returns flowOf(cachedEntities)
+        coEvery { dataSource.getHotels() } throws Exception("Network failure")
+        coEvery { dao.getCount() } returns 1
+
+        val hotelsFlow = repository.getHotels()
+        val refreshResult = repository.refreshHotels()
+        val emittedHotels = hotelsFlow.first()
+
+        assertTrue(refreshResult.isFailure)
+        assertEquals(1, emittedHotels.size)
+        assertEquals("Cached Hotel", emittedHotels[0].name)
+    }
 }

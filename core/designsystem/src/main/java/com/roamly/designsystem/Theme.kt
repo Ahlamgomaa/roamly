@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 val ColorScheme.rating: Color get() = RatingColor
+val ColorScheme.favoriteActive: Color get() = FavoriteActive
+val ColorScheme.favoriteInactive: Color get() = FavoriteInactive
 
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,

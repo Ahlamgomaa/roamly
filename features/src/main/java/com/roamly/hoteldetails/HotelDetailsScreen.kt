@@ -3,6 +3,7 @@ package com.roamly.hoteldetails
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.roamly.designsystem.favoriteActive
+import com.roamly.designsystem.favoriteInactive
 import com.roamly.features.R
 import com.roamly.hoteldetails.components.BookHotelButton
 import com.roamly.hoteldetails.components.HotelAmenities
@@ -56,7 +61,8 @@ fun HotelDetailsRoot(
     HotelDetailsScreen(
         state = uiState,
         onBackClick = onBackClick,
-        onBookClick = onBookClick
+        onBookClick = onBookClick,
+        onToggleFavorite = viewModel::onToggleFavorite
     )
 }
 
@@ -65,7 +71,8 @@ fun HotelDetailsRoot(
 fun HotelDetailsScreen(
     state: HotelDetailsUiState,
     onBackClick: () -> Unit,
-    onBookClick: () -> Unit
+    onBookClick: () -> Unit,
+    onToggleFavorite: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -142,7 +149,20 @@ fun HotelDetailsScreen(
                                 .height(300.dp)
                         )
                         Column(modifier = Modifier.padding(16.dp)) {
-                            HotelRating(rating = hotel.rating)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                HotelRating(rating = hotel.rating)
+                                IconButton(onClick = onToggleFavorite) {
+                                    Icon(
+                                        imageVector = if (state.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                        contentDescription = null,
+                                        tint = if (state.isFavorite) MaterialTheme.colorScheme.favoriteActive else MaterialTheme.colorScheme.favoriteInactive
+                                    )
+                                }
+                            }
                             Spacer(modifier = Modifier.height(8.dp))
                             HotelInfoSection(
                                 name = hotel.name,

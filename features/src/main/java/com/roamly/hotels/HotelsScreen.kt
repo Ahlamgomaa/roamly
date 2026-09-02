@@ -54,7 +54,8 @@ fun HotelsRoot(
         onLoadMore = viewModel::onLoadMore,
         onRefresh = viewModel::refresh,
         onResetFilters = viewModel::onResetFilters,
-        onHotelClick = onHotelClick
+        onHotelClick = onHotelClick,
+        onToggleFavorite = viewModel::onToggleFavorite
     )
 }
 
@@ -69,7 +70,8 @@ fun HotelsScreen(
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
     onResetFilters: () -> Unit,
-    onHotelClick: (Long) -> Unit
+    onHotelClick: (Long) -> Unit,
+    onToggleFavorite: (Long) -> Unit
 ) {
     val listState = rememberLazyListState()
     var showFilterSheet by remember { mutableStateOf(false) }
@@ -142,11 +144,12 @@ fun HotelsScreen(
 
                         items(
                             items = state.displayedHotels,
-                            key = { it.id }
-                        ) { hotel ->
+                            key = { it.hotel.id }
+                        ) { hotelItem ->
                             HotelCard(
-                                hotel = hotel,
-                                onClick = { onHotelClick(hotel.id) }
+                                hotelItem = hotelItem,
+                                onClick = { onHotelClick(hotelItem.hotel.id) },
+                                onToggleFavorite = onToggleFavorite
                             )
                         }
 

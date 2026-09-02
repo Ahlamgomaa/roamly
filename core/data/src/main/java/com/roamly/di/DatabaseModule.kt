@@ -2,6 +2,7 @@ package com.roamly.di
 
 import android.content.Context
 import androidx.room.Room
+import com.roamly.favorite.local.FavoriteDao
 import com.roamly.hotel.local.HotelDao
 import com.roamly.hotel.local.RoamlyDatabase
 import dagger.Module
@@ -22,11 +23,18 @@ object DatabaseModule {
             context,
             RoamlyDatabase::class.java,
             "roamly_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
     fun provideHotelDao(database: RoamlyDatabase): HotelDao {
         return database.hotelDao()
+    }
+
+    @Provides
+    fun provideFavoriteDao(database: RoamlyDatabase): FavoriteDao {
+        return database.favoriteDao()
     }
 }

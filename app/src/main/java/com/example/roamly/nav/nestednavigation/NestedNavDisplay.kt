@@ -5,21 +5,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.roamly.nav.rootnavigation.AppRoute
 import com.example.roamly.nav.rootnavigation.pop
 import com.example.roamly.nav.rootnavigation.setRoot
+import com.roamly.favorites.NavViewModel
+import com.roamly.favorites.FavoritesRoot
 import com.roamly.hotels.HotelsRoot
-import com.roamly.favorites.FavoritesScreen
 
 @Composable
 fun NestedNavDisplay(
     navigateBack: () -> Unit,
     openHotelDetails: (Long) -> Unit,
+    navViewModel: NavViewModel = hiltViewModel()
 ) {
+    val favoriteCount by navViewModel.favoriteCount.collectAsStateWithLifecycle()
     val nestedBackStack = rememberNavBackStack(
         AppRoute.NestedNav.Hotels
     )
@@ -49,6 +55,7 @@ fun NestedNavDisplay(
                                 destination.route,
 
                         label = destination.title,
+                        badgeCount = if (destination == BottomBarDestination.Favorites) favoriteCount else 0
                     )
                 }
             }
@@ -79,7 +86,7 @@ fun NestedNavDisplay(
 
                 entry<AppRoute.NestedNav.Favorites> {
 
-                    FavoritesScreen(
+                    FavoritesRoot(
                         onHotelClick = { hotelId ->
                             openHotelDetails(hotelId)
                         }

@@ -32,4 +32,7 @@
     <string name="hotel_not_found">Hotel not found</string>
     <string name="back">Back</string>
     <string name="about_this_hotel">About this hotel</string>
+    <string name="favorites">Favorites</string>
+    <string name="no_favorites_yet">No favorites yet</string>
+    <string name="favorites_empty_message">Start exploring and save your favorite hotels here.</string>
 </resources>

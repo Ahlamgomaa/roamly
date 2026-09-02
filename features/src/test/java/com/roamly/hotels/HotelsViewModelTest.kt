@@ -2,6 +2,8 @@ package com.roamly.hotels
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.roamly.favorite.repository.FavoriteRepository
+import com.roamly.favorite.usecase.ToggleFavoriteUseCase
 import com.roamly.hotel.model.Hotel
 import com.roamly.hotel.usecase.GetHotelsUseCase
 import com.roamly.hotel.usecase.RefreshHotelsUseCase
@@ -31,6 +33,8 @@ class HotelsViewModelTest {
     private lateinit var viewModel: HotelsViewModel
     private val getHotelsUseCase: GetHotelsUseCase = mockk()
     private val refreshHotelsUseCase: RefreshHotelsUseCase = mockk()
+    private val favoriteRepository: FavoriteRepository = mockk()
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase = mockk()
     private val savedStateHandle = SavedStateHandle()
 
     private val sampleHotels = listOf(
@@ -44,8 +48,15 @@ class HotelsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         every { getHotelsUseCase() } returns flowOf(sampleHotels)
         coEvery { refreshHotelsUseCase() } returns Result.success(Unit)
+        every { favoriteRepository.getFavoriteHotelIds() } returns flowOf(emptyList())
 
-        viewModel = HotelsViewModel(getHotelsUseCase, refreshHotelsUseCase, savedStateHandle)
+        viewModel = HotelsViewModel(
+            getHotelsUseCase,
+            refreshHotelsUseCase,
+            favoriteRepository,
+            toggleFavoriteUseCase,
+            savedStateHandle
+        )
     }
 
     @After
@@ -83,7 +94,7 @@ class HotelsViewModelTest {
 
             state = awaitItem()
             assertEquals(1, state.displayedHotels.size)
-            assertTrue(state.displayedHotels[0].name.contains("Grand", ignoreCase = true))
+            assertTrue(state.displayedHotels[0].hotel.name.contains("Grand", ignoreCase = true))
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -105,7 +116,7 @@ class HotelsViewModelTest {
 
             val state = expectMostRecentItem()
             assertEquals(1, state.displayedHotels.size)
-            assertEquals("Alexandria", state.displayedHotels[0].city)
+            assertEquals("Alexandria", state.displayedHotels[0].hotel.city)
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -121,7 +132,7 @@ class HotelsViewModelTest {
 
             val state = awaitItem()
             assertEquals(1, state.displayedHotels.size)
-            assertTrue(state.displayedHotels[0].rating >= 4.7)
+            assertTrue(state.displayedHotels[0].hotel.rating >= 4.7)
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -137,7 +148,7 @@ class HotelsViewModelTest {
 
             val state = awaitItem()
             assertEquals(2, state.displayedHotels.size)
-            assertTrue(state.displayedHotels.all { it.pricePerNight in 1000.0..2500.0 })
+            assertTrue(state.displayedHotels.all { it.hotel.pricePerNight in 1000.0..2500.0 })
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -149,7 +160,13 @@ class HotelsViewModelTest {
         }
         every { getHotelsUseCase() } returns flowOf(manyHotels)
 
-        viewModel = HotelsViewModel(getHotelsUseCase, refreshHotelsUseCase, savedStateHandle)
+        viewModel = HotelsViewModel(
+            getHotelsUseCase,
+            refreshHotelsUseCase,
+            favoriteRepository,
+            toggleFavoriteUseCase,
+            savedStateHandle
+        )
 
         viewModel.uiState.test {
             awaitItem()
@@ -187,7 +204,7 @@ class HotelsViewModelTest {
             assertEquals("Cairo", state.selectedCity)
             assertEquals(null, state.minRating)
             assertEquals(1, state.displayedHotels.size)
-            assertEquals("Grand Nile", state.displayedHotels[0].name)
+            assertEquals("Grand Nile", state.displayedHotels[0].hotel.name)
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -199,7 +216,13 @@ class HotelsViewModelTest {
         }
         every { getHotelsUseCase() } returns flowOf(manyHotels)
 
-        viewModel = HotelsViewModel(getHotelsUseCase, refreshHotelsUseCase, savedStateHandle)
+        viewModel = HotelsViewModel(
+            getHotelsUseCase,
+            refreshHotelsUseCase,
+            favoriteRepository,
+            toggleFavoriteUseCase,
+            savedStateHandle
+        )
 
         viewModel.uiState.test {
             awaitItem()

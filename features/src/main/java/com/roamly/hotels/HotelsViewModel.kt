@@ -3,6 +3,8 @@ package com.roamly.hotels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.roamly.favorite.repository.FavoriteRepository
+import com.roamly.favorite.usecase.ToggleFavoriteUseCase
 import com.roamly.hotel.usecase.GetHotelsUseCase
 import com.roamly.hotel.usecase.RefreshHotelsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,8 @@ import javax.inject.Inject
 class HotelsViewModel @Inject constructor(
     private val getHotelsUseCase: GetHotelsUseCase,
     private val refreshHotelsUseCase: RefreshHotelsUseCase,
+    private val favoriteRepository: FavoriteRepository,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -62,11 +66,16 @@ class HotelsViewModel @Inject constructor(
 
     val uiState: StateFlow<HotelsUiState> = combine(
         getHotelsUseCase(),
+        favoriteRepository.getFavoriteHotelIds(),
         _searchQuery,
         _filterState,
         _internalState
-    ) { hotels, rawQuery, filters, internal ->
-        val filteredHotels = hotels.filter { hotel ->
+    ) { hotels, favoriteIds, rawQuery, filters, internal ->
+        val hotelItems = hotels.map { hotel ->
+            HotelItem(hotel, hotel.id in favoriteIds)
+        }
+        val filteredHotels = hotelItems.filter { item ->
+            val hotel = item.hotel
             val matchesQuery = filters.query.isBlank() || hotel.name.contains(filters.query, ignoreCase = true)
             val matchesCity = filters.city == null || hotel.city.equals(filters.city, ignoreCase = true)
             val matchesRating = filters.rating == null || hotel.rating >= filters.rating
@@ -82,7 +91,7 @@ class HotelsViewModel @Inject constructor(
         val displayed = filteredHotels.take(internal.page * pageSize)
 
         HotelsUiState(
-            hotels = hotels,
+            hotels = hotelItems,
             searchQuery = rawQuery,
             selectedCity = filters.city,
             minRating = filters.rating,
@@ -134,6 +143,12 @@ class HotelsViewModel @Inject constructor(
         savedStateHandle[KEY_MIN_PRICE] = null
         savedStateHandle[KEY_MAX_PRICE] = null
         resetPagination()
+    }
+
+    fun onToggleFavorite(hotelId: Long) {
+        viewModelScope.launch {
+            toggleFavoriteUseCase(hotelId)
+        }
     }
 
     private fun resetPagination() {

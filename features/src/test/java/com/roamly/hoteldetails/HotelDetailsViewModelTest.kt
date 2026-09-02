@@ -2,6 +2,8 @@ package com.roamly.hoteldetails
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.roamly.favorite.usecase.IsFavoriteUseCase
+import com.roamly.favorite.usecase.ToggleFavoriteUseCase
 import com.roamly.hotel.model.Hotel
 import com.roamly.hotel.usecase.GetHotelByIdUseCase
 import io.mockk.every
@@ -26,6 +28,8 @@ class HotelDetailsViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val getHotelByIdUseCase: GetHotelByIdUseCase = mockk()
+    private val isFavoriteUseCase: IsFavoriteUseCase = mockk()
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase = mockk()
     private val hotelId = 1L
 
     private val sampleHotel = Hotel(
@@ -45,6 +49,7 @@ class HotelDetailsViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        every { isFavoriteUseCase(hotelId) } returns flowOf(false)
     }
 
     @After
@@ -57,7 +62,7 @@ class HotelDetailsViewModelTest {
         every { getHotelByIdUseCase(hotelId) } returns flowOf(sampleHotel)
         val savedStateHandle = SavedStateHandle(mapOf("hotelId" to hotelId))
         
-        val viewModel = HotelDetailsViewModel(getHotelByIdUseCase, savedStateHandle)
+        val viewModel = HotelDetailsViewModel(getHotelByIdUseCase, isFavoriteUseCase, toggleFavoriteUseCase, savedStateHandle)
 
         viewModel.uiState.test {
             var state = awaitItem()
@@ -76,7 +81,7 @@ class HotelDetailsViewModelTest {
         every { getHotelByIdUseCase(hotelId) } returns flowOf(null)
         val savedStateHandle = SavedStateHandle(mapOf("hotelId" to hotelId))
         
-        val viewModel = HotelDetailsViewModel(getHotelByIdUseCase, savedStateHandle)
+        val viewModel = HotelDetailsViewModel(getHotelByIdUseCase, isFavoriteUseCase, toggleFavoriteUseCase, savedStateHandle)
 
         viewModel.uiState.test {
             awaitItem()
@@ -96,7 +101,7 @@ class HotelDetailsViewModelTest {
         }
         val savedStateHandle = SavedStateHandle(mapOf("hotelId" to hotelId))
         
-        val viewModel = HotelDetailsViewModel(getHotelByIdUseCase, savedStateHandle)
+        val viewModel = HotelDetailsViewModel(getHotelByIdUseCase, isFavoriteUseCase, toggleFavoriteUseCase, savedStateHandle)
 
         viewModel.uiState.test {
             awaitItem()

@@ -1,5 +1,7 @@
 package com.roamly.di
 
+import com.roamly.favorite.repository.FavoriteRepository
+import com.roamly.favorite.repository.FavoriteRepositoryImpl
 import com.roamly.hotel.datasource.HotelDataSource
 import com.roamly.hotel.datasource.HotelJsonDataSourceImpl
 import com.roamly.hotel.repository.HotelRepository
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindHotelRepository(
         impl: HotelRepositoryImpl
     ): HotelRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFavoriteRepository(
+        impl: FavoriteRepositoryImpl
+    ): FavoriteRepository
 }

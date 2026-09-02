@@ -1,3 +1,3 @@
-package com.roamly.`hotel-details`
+package com.roamly.hoteldetails
 
-data class HotelDetailsUiState()
+class HotelDetailsUiState

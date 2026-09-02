@@ -1,4 +1,4 @@
-package com.example.roamly.ui.theme
+package com.roamly.designsystem
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme

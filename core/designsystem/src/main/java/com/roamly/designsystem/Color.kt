@@ -1,4 +1,4 @@
-package com.example.roamly.ui.theme
+package com.roamly.designsystem
 
 import androidx.compose.ui.graphics.Color
 

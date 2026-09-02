@@ -1,3 +1,3 @@
 package com.roamly.booking
 
-data class BookingUiState()
+class BookingUiState

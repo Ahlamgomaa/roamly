@@ -3,7 +3,6 @@ package com.roamly.hotels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.roamly.hotel.model.Hotel
 import com.roamly.hotel.usecase.GetHotelsUseCase
 import com.roamly.hotel.usecase.RefreshHotelsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

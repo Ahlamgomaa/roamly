@@ -1,6 +1,7 @@
 package com.example.roamly.nav.nestednavigation
 
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -11,6 +12,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.roamly.nav.rootnavigation.AppRoute
 import com.example.roamly.nav.rootnavigation.pop
 import com.example.roamly.nav.rootnavigation.setRoot
+import com.roamly.hotels.HotelsRoot
+import com.roamly.favorites.FavoritesScreen
 
 @Composable
 fun NestedNavDisplay(
@@ -55,7 +58,7 @@ fun NestedNavDisplay(
         NavDisplay(
             backStack = nestedBackStack,
 
-            modifier = Modifier,
+            modifier = Modifier.padding(innerPadding),
 
             onBack = {
                 if (!nestedBackStack.pop()) {
@@ -67,7 +70,7 @@ fun NestedNavDisplay(
 
                 entry<AppRoute.NestedNav.Hotels> {
 
-                    HotelsScreen(
+                    HotelsRoot(
                         onHotelClick = { hotelId ->
                             openHotelDetails(hotelId)
                         }

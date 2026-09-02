@@ -1,0 +1,28 @@
+<resources>
+    <string name="find_your_perfect_stay">Find your perfect stay</string>
+    <string name="search_hotels">Search hotels...</string>
+    <string name="all_cities">All Cities</string>
+    <string name="filters">Filters</string>
+    <string name="popular_stays">Popular stays</string>
+    <string name="price_range">Price range</string>
+    <string name="min_price">Min price</string>
+    <string name="max_price">Max price</string>
+    <string name="min_rating">Min rating</string>
+    <string name="any">Any</string>
+    <string name="rating_4_0">4.0+</string>
+    <string name="rating_4_5">4.5+</string>
+    <string name="rating_4_8">4.8+</string>
+    <string name="apply">Apply</string>
+    <string name="reset">Reset</string>
+    <string name="no_hotels_found">No hotels found</string>
+    <string name="try_changing_filters">Try changing your search or filters.</string>
+    <string name="clear_filters">Clear Filters</string>
+    <string name="couldnt_load_hotels">Couldn\'t load hotels</string>
+    <string name="something_went_wrong">Something went wrong while loading hotels.</string>
+    <string name="retry">Retry</string>
+    <string name="viewing_cached_data">You\'re viewing cached data</string>
+    <string name="per_night">/ night</string>
+    <string name="rating_label">Rating: %1$.1f</string>
+    <string name="search_content_description">Search hotels</string>
+    <string name="filter_content_description">Open filters</string>
+</resources>

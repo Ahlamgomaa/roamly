@@ -1,9 +1,29 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Local configuration
+local.properties
+
+# Android Studio / IntelliJ
 *.iml
-.gradle
-/local.properties
 .idea/
+
+# macOS
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# Android
+/captures/
+/.externalNativeBuild/
+/.cxx/
+
+# Logs
+*.log
+
+# Kotlin
+.kotlin/
+
+# Generated APK/AAB
+*.apk
+*.aab

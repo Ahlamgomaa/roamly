@@ -3,7 +3,6 @@ package com.roamly.hotels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.roamly.hotel.model.Hotel
 import com.roamly.hotel.usecase.GetHotelsUseCase
 import com.roamly.hotel.usecase.RefreshHotelsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +35,8 @@ class HotelsViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     private val _isCached = MutableStateFlow(false)
     private val _errorMessage = MutableStateFlow<String?>(null)
+
+    private var lastRequestedPage = 1
 
     private val _debouncedQuery = _searchQuery.debounce(300)
 
@@ -108,43 +109,47 @@ class HotelsViewModel @Inject constructor(
 
     fun onSearchQueryChange(query: String) {
         savedStateHandle[KEY_SEARCH_QUERY] = query
-        _currentPage.value = 1
+        resetPagination()
     }
 
     fun onCityFilterChange(city: String?) {
         savedStateHandle[KEY_CITY] = city
-        _currentPage.value = 1
+        resetPagination()
     }
 
     fun onRatingFilterChange(rating: Double?) {
         savedStateHandle[KEY_RATING] = rating
-        _currentPage.value = 1
+        resetPagination()
     }
 
     fun onPriceRangeChange(min: Double?, max: Double?) {
         savedStateHandle[KEY_MIN_PRICE] = min
         savedStateHandle[KEY_MAX_PRICE] = max
-        _currentPage.value = 1
+        resetPagination()
     }
 
     fun onResetFilters() {
         savedStateHandle[KEY_SEARCH_QUERY] = ""
-        savedStateHandle[KEY_CITY] = null
         savedStateHandle[KEY_RATING] = null
         savedStateHandle[KEY_MIN_PRICE] = null
         savedStateHandle[KEY_MAX_PRICE] = null
-        _currentPage.value = 1
+        resetPagination()
     }
 
-    private var lastLoadedPage = 1
+    private fun resetPagination() {
+        _currentPage.value = 1
+        lastRequestedPage = 1
+    }
 
     fun onLoadMore() {
         val currentState = uiState.value
-        if (!currentState.isLoadingMore && currentState.hasMore && _currentPage.value == lastLoadedPage) {
+        val nextPage = _currentPage.value + 1
+        
+        if (!currentState.isLoadingMore && currentState.hasMore && nextPage > lastRequestedPage) {
             viewModelScope.launch {
                 _isLoadingMore.value = true
-                _currentPage.value += 1
-                lastLoadedPage = _currentPage.value
+                lastRequestedPage = nextPage
+                _currentPage.value = nextPage
                 _isLoadingMore.value = false
             }
         }

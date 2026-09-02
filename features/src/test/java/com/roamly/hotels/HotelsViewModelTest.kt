@@ -168,29 +168,54 @@ class HotelsViewModelTest {
     }
 
     @Test
-    fun `multiple filters should work together`() = runTest {
+    fun `reset filters should preserve city filter`() = runTest {
         viewModel.uiState.test {
             awaitItem()
             awaitItem()
 
-            viewModel.onSearchQueryChange("Palace")
-            advanceTimeBy(300)
-            runCurrent()
-            awaitItem()
-            awaitItem()
-            
-            viewModel.onSearchQueryChange("Grand")
-            advanceTimeBy(300)
-            runCurrent()
-            awaitItem()
+            viewModel.onCityFilterChange("Cairo")
             awaitItem()
 
-            viewModel.onCityFilterChange("Cairo")
+            viewModel.onRatingFilterChange(4.9)
+            awaitItem()
+
+            viewModel.onResetFilters()
             runCurrent()
-            
+
             val state = expectMostRecentItem()
+            assertEquals("", state.searchQuery)
+            assertEquals("Cairo", state.selectedCity)
+            assertEquals(null, state.minRating)
             assertEquals(1, state.displayedHotels.size)
             assertEquals("Grand Nile", state.displayedHotels[0].name)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `search should reset pagination`() = runTest {
+        val manyHotels = (1..25).map {
+            Hotel(it.toLong(), "Hotel $it", "City", 4.0, 1000.0, "", "", 0.0, 0.0, emptyList(), emptyList())
+        }
+        every { getHotelsUseCase() } returns flowOf(manyHotels)
+
+        viewModel = HotelsViewModel(getHotelsUseCase, refreshHotelsUseCase, savedStateHandle)
+
+        viewModel.uiState.test {
+            awaitItem()
+            var state = awaitItem()
+            assertEquals(10, state.displayedHotels.size)
+
+            viewModel.onLoadMore()
+            state = awaitItem()
+            assertEquals(20, state.displayedHotels.size)
+
+            viewModel.onSearchQueryChange("Hotel 1")
+            advanceTimeBy(300)
+            runCurrent()
+            
+            state = expectMostRecentItem()
+            assertEquals(10, state.displayedHotels.size)
             cancelAndIgnoreRemainingEvents()
         }
     }

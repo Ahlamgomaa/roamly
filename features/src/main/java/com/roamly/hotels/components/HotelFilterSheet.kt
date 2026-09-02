@@ -34,6 +34,7 @@ fun HotelFilterSheet(
     initialMinPrice: Double?,
     initialMaxPrice: Double?,
     onApply: (Double?, Double?, Double?) -> Unit,
+    onReset: () -> Unit,
     onDismiss: () -> Unit
 ) {
     var tempRating by remember { mutableStateOf(initialMinRating) }
@@ -115,9 +116,8 @@ fun HotelFilterSheet(
             ) {
                 TextButton(
                     onClick = {
-                        tempRating = null
-                        tempMinPrice = null
-                        tempMaxPrice = null
+                        onReset()
+                        onDismiss()
                     },
                     modifier = Modifier.weight(1f)
                 ) {

@@ -82,7 +82,7 @@ fun HotelsScreen(
         }
             .distinctUntilChanged()
             .collect { (lastIndex, total) ->
-                if (total > 0 && lastIndex >= total - 3) {
+                if (total > 0 && lastIndex >= total - 4) {
                     onLoadMore()
                 }
             }
@@ -178,6 +178,7 @@ fun HotelsScreen(
                 onPriceRangeChange(min, max)
                 showFilterSheet = false
             },
+            onReset = onResetFilters,
             onDismiss = { showFilterSheet = false }
         )
     }

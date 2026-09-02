@@ -3,7 +3,7 @@ package com.roamly.hotels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.roamly.favorite.repository.FavoriteRepository
+import com.roamly.favorite.usecase.GetFavoriteHotelIdsUseCase
 import com.roamly.favorite.usecase.ToggleFavoriteUseCase
 import com.roamly.hotel.usecase.GetHotelsUseCase
 import com.roamly.hotel.usecase.RefreshHotelsUseCase
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class HotelsViewModel @Inject constructor(
     private val getHotelsUseCase: GetHotelsUseCase,
     private val refreshHotelsUseCase: RefreshHotelsUseCase,
-    private val favoriteRepository: FavoriteRepository,
+    private val getFavoriteHotelIdsUseCase: GetFavoriteHotelIdsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -66,7 +66,7 @@ class HotelsViewModel @Inject constructor(
 
     val uiState: StateFlow<HotelsUiState> = combine(
         getHotelsUseCase(),
-        favoriteRepository.getFavoriteHotelIds(),
+        getFavoriteHotelIdsUseCase(),
         _searchQuery,
         _filterState,
         _internalState

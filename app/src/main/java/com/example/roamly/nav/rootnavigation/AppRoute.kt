@@ -28,5 +28,10 @@ sealed interface AppRoute : NavKey {
     @Serializable
     data class BookingSuccess(
         val bookingReference: String,
+        val hotelName: String,
+        val checkIn: Long,
+        val checkOut: Long,
+        val rooms: Int,
+        val totalPrice: Double
     ) : AppRoute
 }
